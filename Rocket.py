@@ -33,7 +33,7 @@ def Epsilon_works(Coordinates,ray_freq=0.5,Norm = True):
     # else:
     #     return 0  #* dielectric_constant * 10 ** (-12)
     #
-def Epsilon(Coordinates,ray_freq=0.8,Norm = True):
+def Epsilon(Coordinates,ray_freq=0.4,Norm = True):
     RocketXLoc = 0
     RocketZLow = 0
     RocketZHigh = 2.35
@@ -101,10 +101,10 @@ def set_(name):
     f.write('\n')
     f.close()
 delta = 0.02
-X_boundary = 10#z
-Y_boundary = 40#x
-Xmin = -10#z
-Ymin = 0#x
+X_boundary = 15#z
+Y_boundary = 7#x
+Xmin = -15#z
+Ymin = -20#x
 print(X_boundary/delta)
 x = np.arange(Xmin,X_boundary+delta,delta)
 y = np.arange(Ymin,Y_boundary+delta,delta)
@@ -177,6 +177,7 @@ count = 0
 N = len(x)*len(y)
 f = open(f'./{file}','ab')
 df = pd.DataFrame(columns=y,index=x)
+
 for Yi,Y in enumerate(y):
     stroka = ''
     for Xi,X in enumerate(x):

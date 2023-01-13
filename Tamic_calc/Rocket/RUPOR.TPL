@@ -1,12 +1,12 @@
 #TMC_RT_H
 
-#define L_waveg @ ( 10000.00)
+#define L_waveg @ ( 80000.00)
 #define W_file  @ r7_1
 #define W_freq  @ (  0.5)
 #define W_eps @ ( 4. )
-#define W_time @ ( 200. )
-#define W_waveg @ (  45000.00)
-#define W_input @ (  44000.00)
+#define W_time @ ( 500. )
+#define W_waveg @ (  50000.00)
+#define W_input @ (  W_waveg-1000.00)
 #define W_delta @ (   20.0)
 #define W_r @ (   40.00)
 #define W_type @ MAGNETIC
@@ -93,7 +93,7 @@
  T 10; 0.0; 0.0;
  T 11; 0.0; 0.0;
  T 12; 0.0; 0.0;
- T 55; 10000.0; 0.0;
+ T 55; L_waveg/2; 30000.0;
 ! T 56; 150; 100;
 #END_LINK
 
@@ -101,7 +101,7 @@
  FILE W_file;
  FIELDS;
  TOPOLOGY;
- FIELD_DISTRIBUTION_M  W_file; W_freq; (W_time) - 1.0 - 2./(W_freq); (W_time) - 1.0 ;
+ FIELD_DISTRIBUTION_M  W_file; W_freq; 490; 495;
 #END_OUTPUT
 
 #END_STEP

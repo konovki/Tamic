@@ -1,0 +1,7 @@
+#TMCGROTS
+!Graphics parameters
+!Graphics data
+!file name : C:\Users\Kirill\Desktop\Git\Tamic\Tamic_calc\Rocket\rocket_empty.dop
+!Data file for draw graphics
+!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2
+rocket_empty.DAT rocket_empty.DAT 1 1 1 1 1

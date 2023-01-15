@@ -123,8 +123,9 @@ def calc_rasp(angle):
     nX = len(x)
     nY = len(y)
     nPoint = nX * nY
-
+    print(angle)
     angle_str = str(np.round(np.degrees(angle),0))[:-2]
+    print(angle_str)
     def generate_TPL(angle,freq=0.5):
         name = '1rocket_'+angle + '.TPL'
         eps_name = 'rocket_'+angle
@@ -420,9 +421,9 @@ def set_(name):
     f = open(f'./{name}', 'a')
     f.write('\n')
     f.close()
-potoki = 8
+potoki = 1
 if __name__ == '__main__':
-    angles = np.radians(np.linspace(0,360,13))
-    angles = np.array([90])
+    # angles = np.radians(np.linspace(0,360,13))
+    angles = np.radians(np.array([90]))
     Pool(potoki).map(calc_rasp, angles)
     Pool(potoki).close()

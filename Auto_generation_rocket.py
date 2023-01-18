@@ -65,7 +65,7 @@ def Epsilon(Coordinates, ray_freq=0.4, Norm=True):
     exp = - wp_w  # для Tamic
     # rocket
     z = -z
-    par = -1
+    par = -100
 
     k = (RocketWidth) / (RocketZHigh - (RocketZHigh + RocketConeHeight))
     b = RocketXLoc - k * (RocketZHigh + RocketConeHeight)
@@ -127,11 +127,11 @@ def calc_rasp(angle):
     angle_str = str(np.round(np.degrees(angle),0))[:-2]
     print(angle_str)
     def generate_TPL(angle,freq=0.5):
-        name = '1rocket_'+angle + '.TPL'
+        name = 'rocket_'+angle + '.TPL'
         eps_name = 'rocket_'+angle
         file = path + name
         f = open(f'./{file}', 'w')
-        s_old = f'#TMC_RT_H\n' \
+        s = f'#TMC_RT_H\n' \
             '#define L_waveg @ ( 80000.00)\n' \
             f'#define W_file  @ {eps_name}\n' \
             f'#define W_freq  @ (  {freq})\n' \
@@ -218,7 +218,7 @@ def calc_rasp(angle):
             f' T 10; 0.0; 0.0;\n' \
             f' T 11; 0.0; 0.0;\n' \
             f' T 12; 0.0; 0.0;\n' \
-            f' T 55; L_waveg/2; 30000.0;\n' \
+            f' T 55; L_waveg/2; W_waveg/2;\n' \
             f'#END_LINK\n' \
             f'\n' \
             f'#OUTPUT\n' \
@@ -231,7 +231,7 @@ def calc_rasp(angle):
             f'#END_STEP\n' \
             f'\n' \
             f'#EOF'
-        s = f'#TMC_RT_H\n' \
+        s_new = f'#TMC_RT_H\n' \
             '#define L_waveg @ ( 80000.00)\n' \
             f'#define W_file  @ {eps_name}\n' \
             f'#define W_freq  @ (  {freq})\n' \
@@ -289,7 +289,7 @@ def calc_rasp(angle):
             f'  END_B\n' \
             f'\n' \
             f' BLOCK 55;\n' \
-            f'  FILE W_file; 0; 10000; 0; 10000;\n' \
+            f'  FILE W_file; 0; 10000; 0; 0;\n' \
             f' END_B\n' \
             f' BLOCK 8;\n' \
             f'  RECT_STAT ABSORBER; L_waveg-5*W_delta; L_waveg - 1*W_delta+0.00; 0.0; W_waveg-2*W_delta;\n' \
@@ -334,85 +334,87 @@ def calc_rasp(angle):
         f.write(s)
         f.close()
     generate_TPL(angle_str)
-    name = f'1rocket_{angle_str}.eps'
-    file = path + name
-    def write_headres(file):
-        f = open(f'./{file}', 'w')
-        f.write('#TamicRTH_planar_DistributionDielectricPermeability_File_V2.00 2000')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write('#TopologyPrimitiv RECT_STAT ')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#dDelta {delta}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#Xmin {Xmin}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#Ymin {Ymin}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#nX {nX}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#nY {nY}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#nPoint {nPoint}')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write(f'#nAccuracy 4')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write('#sNodeFormat NULL')
-        f.close()
-        set_(file)
-        f = open(f'./{file}', 'a')
-        f.write('#sValueFormat NULL')
-        f.close()
-        set_(file)
-    def set_a(a, Xi, Yi):
-        if (Yi == 0) and (Xi == 0):
-            a = a / 4
-        elif (Yi == len(y)) and (Xi == len(x)):
-            a = a / 4
-        elif (Yi == 0) and (Xi == len(x)):
-            a = a / 4
-        elif (Yi == len(y)) and (Xi == 0):
-            a = a / 4
-        elif (Yi == 0) or (Yi == len(y)) or (Xi == 0) or (Xi == len(x)):
-            a = a / 2
-        return a
-    write_headres(file)
-    count = 0
-    N = len(x) * len(y)
-    f = open(f'./{file}', 'ab')
+    Gen_eps = True
+    if Gen_eps == True:
+        name = f'rocket_{angle_str}.eps'
+        file = path + name
+        def write_headres(file):
+            f = open(f'./{file}', 'w')
+            f.write('#TamicRTH_planar_DistributionDielectricPermeability_File_V2.00 2000')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write('#TopologyPrimitiv RECT_STAT ')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#dDelta {delta}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#Xmin {Xmin}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#Ymin {Ymin}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#nX {nX}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#nY {nY}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#nPoint {nPoint}')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write(f'#nAccuracy 4')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write('#sNodeFormat NULL')
+            f.close()
+            set_(file)
+            f = open(f'./{file}', 'a')
+            f.write('#sValueFormat NULL')
+            f.close()
+            set_(file)
+        def set_a(a, Xi, Yi):
+            if (Yi == 0) and (Xi == 0):
+                a = a / 4
+            elif (Yi == len(y)) and (Xi == len(x)):
+                a = a / 4
+            elif (Yi == 0) and (Xi == len(x)):
+                a = a / 4
+            elif (Yi == len(y)) and (Xi == 0):
+                a = a / 4
+            elif (Yi == 0) or (Yi == len(y)) or (Xi == 0) or (Xi == len(x)):
+                a = a / 2
+            return a
+        write_headres(file)
+        count = 0
+        N = len(x) * len(y)
+        f = open(f'./{file}', 'ab')
 
-    for Yi, Y in enumerate(y):
-        stroka = ''
-        for Xi, X in enumerate(x):
-            X1, Z1 = X * np.cos(angle) + Y * np.sin(angle), -X * np.sin(angle) + Y * np.cos(angle)
-            a = set_a(Epsilon([X1, Z1]), Xi, Yi)
-            f.write(bytearray(struct.pack("!f", a))[::-1])
-            f.write(node.to_bytes(4, 'little'))
-            node += 1
-            count += 1
-            if count % 1000 == 0:
-                print(count / N * 100)
-            # print(Z1[Yi],X1[Xi])
-            # df[Z1[Yi]][X1[Xi]] = a
-    f.close()
-    # print(df)
+        for Yi, Y in enumerate(y):
+            stroka = ''
+            for Xi, X in enumerate(x):
+                X1, Z1 = X * np.cos(angle) + Y * np.sin(angle), -X * np.sin(angle) + Y * np.cos(angle)
+                a = set_a(Epsilon([X1, Z1]), Xi, Yi)
+                f.write(bytearray(struct.pack("!f", a))[::-1])
+                f.write(node.to_bytes(4, 'little'))
+                node += 1
+                count += 1
+                if count % 1000 == 0:
+                    print(count / N * 100)
+                # print(Z1[Yi],X1[Xi])
+                # df[Z1[Yi]][X1[Xi]] = a
+        f.close()
+        # print(df)
 
 def set_(name):
     f = open(f'./{name}', 'ab')
@@ -421,9 +423,9 @@ def set_(name):
     f = open(f'./{name}', 'a')
     f.write('\n')
     f.close()
-potoki = 1
+potoki = 12
 if __name__ == '__main__':
-    # angles = np.radians(np.linspace(0,360,13))
-    angles = np.radians(np.array([90]))
+    angles = np.radians(np.linspace(0,360,13))
+    # angles = np.radians(np.array([90]))
     Pool(potoki).map(calc_rasp, angles)
     Pool(potoki).close()

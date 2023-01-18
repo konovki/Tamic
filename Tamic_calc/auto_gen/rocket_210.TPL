@@ -85,7 +85,7 @@
  T 10; 0.0; 0.0;
  T 11; 0.0; 0.0;
  T 12; 0.0; 0.0;
- T 55; L_waveg/2; 30000.0;
+ T 55; L_waveg/2; W_waveg/2;
 #END_LINK
 
 #OUTPUT

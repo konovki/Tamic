@@ -2,17 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def DN_operation(Aclear, Flcear, Arocket, Frocket):
-    Fclear, Frocket = np.radians(Flcear), np.radians(Frocket)
-    Clear, Rocket = Aclear * np.exp(1j * Fclear), Arocket * np.exp(1j * Frocket)
-    Dif = Rocket + Clear
-    AmpDif = np.abs(Dif)
-    # AmpDif = np.sqrt(np.imag(Dif)**2+np.real(Dif)**2)
-    FasDif = np.degrees(np.imag(Dif))
-    return AmpDif, FasDif
+def DN_Sum_operation(A1, A2, F1, F2):
+    Amp = np.sqrt((A1 * np.cos(F1) + A2 * np.cos(F2)) ** 2 + (A1 * np.sin(F1) + A2 * np.sin(F2)) ** 2)
+    Fas = np.arctan2((A1 * np.sin(F1) + A2 * np.sin(F2)), (A1 * np.cos(F1) + A2 * np.cos(F2)))
+    return Amp, Fas
 
 
-
+def DN_Dif_operation(A1, A2, F1, F2):
+    F1, F2 = np.radians(F1), np.radians(F2)
+    Amp = np.sqrt((A1 * np.cos(F1) - A2 * np.cos(F2)) ** 2 + (A1 * np.sin(F1) - A2 * np.sin(F2)) ** 2)
+    Fas = np.arctan2((A1 * np.sin(F1) - A2 * np.sin(F2)), (A1 * np.cos(F1) - A2 * np.cos(F2)))
+    return Amp, np.degrees(Fas)
 
 
 def take_AFR(Clear):
@@ -70,23 +70,35 @@ def write_file(file, stroki):
         f.close()
 
 
-prav = load_file('./prav.dat')
-Aprav, Fprav = take_AFR(prav)
-# Rocket = load_file('./rocket_90.DAT')
-lev = load_file('./lev.dat')
-Alev, Flev = take_AFR(lev)
-A, F = DN_operation(Aprav, Fprav, Alev, Flev)
-front = load_file('./front.dat')
-Afront, Ffront = take_AFR(front)
-Aex, Fex = DN_operation(Afront, Ffront, A, F)
-Export = place_AFR(prav, Aex, Fex)
-
-plt.plot(Flev, label='Flev')
-plt.plot(Fprav, label='Fprav')
-plt.plot(Ffront, label='Ffront')
-plt.plot(Fex, label='Fex')
-plt.plot(F, label='F')
-plt.legend()
-plt.show()
-Export = ConvertToStr(Export)
-write_file('./New1.dat', Export)
+operation = 1
+if operation == 1:
+    Rocket = load_file('./rocket_60.DAT')
+    Empty = load_file('./Empty.DAT')
+    Ar, Fr = take_AFR(Rocket)
+    Ae, Fe = take_AFR(Empty)
+    A, F = DN_Dif_operation(Ar, Ae, Fr, Fe)
+    Export = place_AFR(Rocket, A, F)
+    Export = ConvertToStr(Export)
+    write_file('./dif60.dat', Export)
+elif operation == 2:
+    left = load_file('./lev.dat')
+    righ = load_file('./prav.dat')
+    fron = load_file('./front.dat')
+    A1, F1 = take_AFR(left)
+    A2, F2 = take_AFR(righ)
+    A3, F3 = take_AFR(fron)
+    F1, F2, F3 = np.radians(F1), np.radians(F2), np.radians(F3)
+    dA, dF = DN_Sum_operation(A1, A2, F1, F2)
+    A, F = DN_Sum_operation(-dA, A3, dF, F3)
+    # A = np.abs(A-2)
+    plt.plot(F1, label="A1")
+    plt.plot(F2, label="A2")
+    plt.plot(F3, label="A3")
+    plt.plot(dF, label="dA")
+    plt.plot(F, label="A")
+    F = np.degrees(F)
+    plt.legend()
+    plt.show()
+    Export = place_AFR(left, A, F)
+    Export = ConvertToStr(Export)
+    write_file('./sum.dat', Export)

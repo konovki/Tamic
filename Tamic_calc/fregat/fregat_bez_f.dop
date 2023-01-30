@@ -1,7 +1,0 @@
-#TMCGROTS
-!Graphics parameters
-!Graphics data
-!file name : C:\Users\Kirill\Desktop\Git\Tamic\Tamic_calc\fregat\fregat_bez_f.dop
-!Data file for draw graphics
-!TFileName GraphicsName DrawFlag Input1 Mod1 Input2 Mod2
-fregat_bez_f.DAT fregat_bez_f.DAT 1 1 1 1 1

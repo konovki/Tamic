@@ -8,7 +8,7 @@ import properties as prop
 import Library.Library as lib
 import os.path
 path = ''
-for item in os.getcwd().split(prop.splitter)[:-2]:
+for item in os.getcwd().split(lib.get_split())[:-2]:
     path += item + '/'
 path += 'Results/'
 lib.check_path(path)
@@ -16,7 +16,7 @@ path += 'Rocket/'
 lib.check_path(path)
 print('path',path)
 local_path = os.getcwd()
-delta = 0.1#0.02
+delta = 0.02
 def Epsilon_works(Coordinates, ray_freq=0.5, Norm=True):
     x, z = Coordinates[0], Coordinates[1]
     koeff = 22.1119  # last 2.21119 * (10 ** 19). included factor (10^9)^2 from freq
@@ -102,7 +102,52 @@ def Epsilon(Coordinates, ray_freq=0.4, Norm=True):
 
     return exp
 
+def Epsilon_no_fakel(Coordinates, ray_freq=0.4, Norm=True):
+    RocketXLoc = 0
+    RocketZLow = 0
+    RocketZHigh = 2.35
+    RocketConeHeight = 4.08
+    RocketWidth = 1.17
+    zAdd = RocketZHigh + RocketZHigh
+    x, z = Coordinates[0], -Coordinates[1]
+    koeff = 22.1119  # last 2.21119 * (10 ** 19). included factor (10^9)^2 from freq
+    r_source = -0.938854
+    x2_y2 = x ** 2
+    par0 = 0
+    deltaEps = -1
 
+    # exp = 1 - wp_w
+    exp0 = 0  # для Tamic
+    # rocket
+    z = -z
+    par = -100
+
+    k = (RocketWidth) / (RocketZHigh - (RocketZHigh + RocketConeHeight))
+    b = RocketXLoc - k * (RocketZHigh + RocketConeHeight)
+    sqrtX = np.sqrt((x - RocketXLoc) ** 2)
+    exp = np.where(((z >= RocketZLow) & (z <= RocketZHigh) & (sqrtX <= RocketWidth)), par, exp0)
+    exp = np.where(((z >= RocketZHigh) & (z <= (RocketZHigh + RocketConeHeight)) & (
+            np.abs(x - RocketXLoc) <= k * z + b - RocketXLoc)), par, exp)
+
+    # soplo
+    def calc_k_b(z1, z2, x1, x3):
+        k = (z2 - z1) / (x3 - x1)
+        b = z1 - k * x1
+        return k, b
+
+    zSopla = 0.3
+    xlSopla1 = 0.824
+    xlSopla3 = 0.188
+    xlSopla2 = 0.736
+    xlSopla4 = 0
+    kl, bl = calc_k_b(RocketZLow - zSopla, RocketZLow, RocketXLoc - xlSopla1, RocketXLoc - xlSopla3)
+    kr, br = calc_k_b(RocketZLow - zSopla, RocketZLow, RocketXLoc - xlSopla2, RocketXLoc - xlSopla4)
+    exp = np.where(((z <= RocketZLow) & (z >= RocketZLow - zSopla) & (z >= kr * x + br) & (z <= kl * x + bl)), par, exp)
+    kl, bl = calc_k_b(RocketZLow - zSopla, RocketZLow, RocketXLoc + xlSopla2, RocketXLoc + xlSopla4)
+    kr, br = calc_k_b(RocketZLow - zSopla, RocketZLow, RocketXLoc + xlSopla1, RocketXLoc + xlSopla3)
+    exp = np.where(((z <= RocketZLow) & (z >= RocketZLow - zSopla) & (z <= kr * x + br) & (z >= kl * x + bl)), par, exp)
+
+    return exp
 def check_eps():
     x = np.linspace(0, 1, 100)
     y = np.linspace(0, 1, 100)
@@ -111,11 +156,20 @@ def check_eps():
     plt.contourf(X, Y, Eps)
     plt.show()
 
-def calc_rasp(angle):
-    X_boundary = 5  # z
-    Y_boundary = 7  # x
-    Xmin = -5  # z
-    Ymin = -15  # x
+def calc_rasp(angle,freq):
+    Only_rocket = False
+    if Only_rocket == False:
+        def_name = 'rocket_no_fakel_freq_'
+        X_boundary = 5  # z
+        Y_boundary = 7  # x
+        Xmin = -5  # z
+        Ymin = -15  # x
+    elif Only_rocket == True:
+        def_name = 'rocket_'
+        X_boundary = 5  # z
+        Y_boundary = 7  # x
+        Xmin = -5  # z
+        Ymin = -3  # x
     x1, x2, x3 = 0, Xmin, X_boundary
     y1, y2, y3 = Y_boundary, Ymin, Ymin
     angle = - angle
@@ -137,9 +191,10 @@ def calc_rasp(angle):
     print(angle)
     angle_str = str(np.round(np.degrees(angle),0))[:-2]
     print(angle_str)
+
     def generate_TPL(angle,freq=0.5):
-        name = 'rocket_'+angle + '.TPL'
-        eps_name = 'rocket_'+angle
+        name = def_name +angle + '.TPL'
+        eps_name = def_name +angle
         file = path + name
         f = open(file, 'w')
         s = f'#TMC_RT_H\n' \
@@ -244,10 +299,14 @@ def calc_rasp(angle):
             f'#EOF'
         f.write(s)
         f.close()
-    generate_TPL(angle_str)
+    gen_TPL_fakel = True
+    if gen_TPL_fakel == True:
+        generate_TPL(angle_str)
+
     Gen_eps = True
+
     if Gen_eps == True:
-        name = f'rocket_{angle_str}.eps'
+        name = f'{def_name}{angle_str}.eps'
         file = path + name
         def set_a(a, Xi, Yi):
             if (Yi == 0) and (Xi == 0):
@@ -270,7 +329,10 @@ def calc_rasp(angle):
             stroka = ''
             for Xi, X in enumerate(x):
                 X1, Z1 = X * np.cos(angle) + Y * np.sin(angle), -X * np.sin(angle) + Y * np.cos(angle)
-                a = set_a(Epsilon([X1, Z1]), Xi, Yi)
+                if Only_rocket == True:
+                    a = set_a(Epsilon_no_fakel([X1, Z1]), Xi, Yi)
+                else:
+                    a = set_a(Epsilon([X1, Z1]), Xi, Yi)
                 f.write(bytearray(struct.pack("!f", a))[::-1])
                 f.write(node.to_bytes(4, 'little'))
                 node += 1
@@ -283,7 +345,8 @@ def calc_rasp(angle):
         # print(df)
 
 potoki = 12
-angles = np.radians(np.linspace(0,360,13))
+angles = np.radians(np.arange(0,360,30))
+
 # angles = np.radians(np.array([90]))
 if __name__ == '__main__':
     Pool(potoki).map(calc_rasp, angles)

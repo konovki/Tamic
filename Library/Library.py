@@ -2,6 +2,19 @@ import numpy as np
 from numpy import pi
 import os.path
 import matplotlib.pyplot as plt
+from sys import platform
+import winsound
+def beep():
+    dur = 60
+    for freq in np.arange(500,1400,100):
+        winsound.Beep(frequency=freq,duration=dur)
+
+    # freq = 600
+    # dur = 300
+    # winsound.Beep(frequency=freq,duration=dur)
+    # freq = 900
+    # dur = 300
+    # winsound.Beep(frequency=freq,duration=dur)
 def AFR_to_RP(phi,A,F,k,d):
     N = len(A)
     n = np.arange(0,N,1)-1
@@ -32,3 +45,22 @@ def write_headres(file,delta,Xmin,Ymin,nX,nY,nPoint):
         f.write(tmp)
         f.close()
     set_(file)
+def get_split():
+    if platform == 'win32':
+        splitter = '\\'
+    else:
+        splitter = '/'
+    return splitter
+def clear_files(path,names):
+    def del_file(file):
+        try:
+            if os.path.exists(file) == True:
+                os.remove(file)
+        except: pass
+    for name in names:
+        file1 = path + name[:-3]+'AMP'
+        file2 = path + name[:-3]+'FAZ'
+        file3 = path + name[:-3]+'DAT'
+        del_file(file1)
+        del_file(file2)
+        del_file(file3)
